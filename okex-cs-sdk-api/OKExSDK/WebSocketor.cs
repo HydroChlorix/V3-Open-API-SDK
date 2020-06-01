@@ -14,7 +14,7 @@ namespace OKExSDK
 {
     public class WebSocketor : IDisposable
     {
-        string url = "wss://real.okex.com:10442/ws/v3";
+        private string _url;
         ClientWebSocket ws = null;
         CancellationTokenSource cts = new CancellationTokenSource();
         public event WebSocketPushHandler WebSocketPush;
@@ -32,8 +32,10 @@ namespace OKExSDK
         private int retryNum = 0;
         public int retryLimit { get; set; } = 20;
 
-        public WebSocketor()
+        public WebSocketor(string url = "wss://real.okex.com:8443/ws/v3?BrokerId=181")
         {
+            this._url = url;
+
             ws = new ClientWebSocket();
             closeCheckTimer.Interval = 31000;
             closeCheckTimer.Elapsed += async (s, e) =>
@@ -44,7 +46,7 @@ namespace OKExSDK
 
         public async Task ConnectAsync()
         {
-            await ws.ConnectAsync(new Uri(url), cts.Token);
+            await ws.ConnectAsync(new Uri(_url), cts.Token);
             closeCheckTimer.Interval = 31000;
             closeCheckTimer.Start();
             receive();
